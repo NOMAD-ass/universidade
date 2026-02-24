@@ -16,7 +16,7 @@ aluno = Aluno("Jose Maria",
 
               )
 
-query = aluno.cadastrar()
+query = aluno.cadastrar(banco)
 
 banco.execute_query(query)
 

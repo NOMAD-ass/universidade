@@ -10,7 +10,7 @@ class Aluno:
         self.matricula = True
 
     def cadastrar(self, db=MySQL()):
-        query = f"""
+        query = """
             INSERT INTO alunos (
                 nome,
                 email,
@@ -18,15 +18,20 @@ class Aluno:
                 telefone,
                 endereco
             ) VALUES (
-                '{self.nome}',
-                '{self.email}',
-                '{self.cpf}',
-                '{self.telefone}',
-                '{self.endereco}'
+                %s,%s,%s,%s,%s
             )
         """
 
-        db.execute_query(query)
+        values = (
+                 self.nome,
+                 self.email,
+                 self.cpf,
+                 self.telefone,
+                 self.endereco
+
+        )
+
+        db.execute_query(query,values)
 
     def editar(self):
         pass

@@ -1,112 +1,90 @@
 from modules.mysql import MySQL
-
 from modules.aluno import Aluno
 
 import sys
 
 from PySide6.QtWidgets import (
-    QApplication, 
+    QApplication,
     QWidget,
     QVBoxLayout,
     QLabel,
     QLineEdit,
-    QPushButton
+    QPushButton,
+    QMessageBox
 )
 
-class TelaCadastro():
+class TelaCadastro:
     def __init__(self):
-        self.app = app = QApplication(sys.argv)
+        self.app = QApplication(sys.argv)
         self.janela = QWidget()
-        self.layout = QVBoxLayout
+        self.layout = QVBoxLayout()
+        self.banco = MySQL()
 
-        self.labels = []
-        self.campos = []
+        self.campos = {}
 
+        self.configurar_janela()
+        self.criar_componentes()
+
+
+    def configurar_janela(self):
         self.janela.setWindowTitle("Cadastro Aluno")
         self.janela.resize(1200, 600)
-
-        def criar_componetes(self):
-            self.labels.append(QLabel("Digite seu nome"))
-            self.labels.append(QLabel("Digite seu email"))
-            self.labels.append(QLabel("Digite seu cpf"))
-            self.labels.append(QLabel("Digite seu telefone"))
-            self.labels.append(QLabel("Digite seu endereco"))
-
-            for label in self.labels:
-                self.layout.addWidget(label)
-
-                campo = QLineEdit()
-                self.compo.append(campo)
-                self.layout.addWidget(campo)
-
-        botao_cadastro = QPushButton("Cadastrar") 
-        self.layout.addWidget(botao_cadastro)
-
+        #fazer tela de cadastro ser dinamica
         self.janela.setLayout(self.layout)
-        botao.clicked.connect(self.cadastrar)     
-     
 
-    def cadastrar():
+
+    def criar_componentes(self):
+        estrutura = {
+            "nome": "Digite seu nome:",
+            "email": "Digite seu email:",
+            "cpf": "Digite seu cpf:",
+            "telefone": "Digite seu telefone:",
+            "endereco": "Digite seu endereço:"
+        }
+
+        for chave, texto in estrutura.items():
+            label = QLabel(texto)
+            campo = QLineEdit()
+
+            self.layout.addWidget(label)
+            self.layout.addWidget(campo)
+
+            self.campos[chave] = campo
+
+        self.botao_cadastro = QPushButton("Cadastrar")
+        self.layout.addWidget(self.botao_cadastro)
+
+        self.botao_cadastro.clicked.connect(self.cadastrar)
+
+
+    def cadastrar(self):
         aluno = Aluno(
-            campo_nome.text(),
-            campo_email.text(),
-            campo_cpf.text(),
-            campo_telefone.text(),
-            campo_endereco.text(),
+            self.campos['nome'].text(),
+            self.campos['email'].text(),
+            self.campos['cpf'].text(),
+            self.campos['telefone'].text(),
+            self.campos['endereco'].text()
         )
 
-        banco = MySQL()
-        banco.connect()
+        self.banco.connect()
 
-        aluno.cadastrar(banco)
+        try:
+            aluno.cadastrar(self.banco)
+            QMessageBox.information(self.janela, "Sucesso", "Aluno cadastrado!")
+            self.limpar_campos()
+        except Exception as e:
+            QMessageBox.critical(self.janela, "Erro", f"Erro ao cadastrar: {str(e)}")
+        finally:
+            self.banco.disconnect()
 
-        banco.disconnect()
 
-#app = QApplication(sys.argv)
+    def limpar_campos(self):
+        for campo in self.campos.values():
+            campo.clear()
 
-janela = QWidget()
-janela.setWindowTitle("Cadastro Aluno")
-janela.resize(1200, 600)
 
-#layout = QVBoxLayout()
+if __name__ == "__main__":
+    tela = TelaCadastro()
+    tela.janela.show()
 
-# Componentes
-label_nome = QLabel("Digite seu nome: ")
-campo_nome = QLineEdit()
-
-label_email = QLabel("Digite seu email: ")
-campo_email = QLineEdit()
-
-label_cpf = QLabel("Digite seu cpf: ")
-campo_cpf = QLineEdit()
-
-label_telefone = QLabel("Digite seu telefone: ")
-campo_telefone = QLineEdit()
-
-label_endereco = QLabel("Digite seu endereço: ")
-campo_endereco = QLineEdit()
-
-botao = QPushButton("Cadastrar")
-
-# Adicionar componentes à janela
-layout.addWidget(label_nome)
-layout.addWidget(campo_nome)
-
-layout.addWidget(label_email)
-layout.addWidget(campo_email)
-
-layout.addWidget(label_cpf)
-layout.addWidget(campo_cpf)
-
-layout.addWidget(label_telefone)
-layout.addWidget(campo_telefone)
-
-layout.addWidget(label_endereco)
-layout.addWidget(campo_endereco)
-
-layout.addWidget(botao)
-janela.setLayout(layout)
-botao.clicked.connect(cadastro)
-
-janela.show()
-sys.exit(app.exec())
+    sys.exit(tela.app.exec())

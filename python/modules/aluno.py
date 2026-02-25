@@ -9,7 +9,7 @@ class Aluno:
         self.endereco = endereco
         self.matricula = True
 
-    def cadastrar(self, db=MySQL()):
+    def cadastrar(self, db: MySQL):
         query = """
             INSERT INTO alunos (
                 nome,

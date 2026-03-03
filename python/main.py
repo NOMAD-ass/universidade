@@ -9,6 +9,8 @@ banco = MySQL(
 )
 
 banco.connect()
+ 
+consultar = Aluno.listar(banco)
 
 aluno = Aluno(
     "José Maria",
